@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from tokenpilot.audit import build_audit
 from tokenpilot.config import Settings
 from tokenpilot.demo import DEMO_TENANT
+from tokenpilot.ledger import reports
 from tokenpilot.ledger.importer import delete_tenant_data, import_csv
 from tokenpilot.savings.model import AuditConfig
 from tokenpilot.sources.http import SyncError
@@ -98,6 +99,18 @@ def delete_data():
     with _session() as session:
         delete_tenant_data(session, tenant)
     return "", 204
+
+
+@bp.get("/daily")
+def daily():
+    """?tenant=&from=YYYY-MM-DD&to=YYYY-MM-DD — computed spend per day, oldest first."""
+    tenant = _tenant()
+    start, end = _date_param("from"), _date_param("to")
+    if start and end and start > end:
+        raise ApiError(400, "bad_period", '"from" must not be after "to".')
+    with _session() as session:
+        days = reports.daily_spend(session, tenant, start, end)
+    return jsonify(to_json({"days": days}))
 
 
 @bp.get("/sync")

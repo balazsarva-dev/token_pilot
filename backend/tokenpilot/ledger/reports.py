@@ -4,6 +4,7 @@ Optional start/end (inclusive dates) limit a query to a period; None = no limit.
 """
 
 from datetime import date
+from decimal import Decimal
 
 from sqlalchemy import Row, func, select, text
 from sqlalchemy.orm import Session
@@ -45,6 +46,22 @@ def spend_by(
         .order_by(func.sum(FctUsage.computed_cost).desc().nulls_last())
     )
     return [_as_dict(r) for r in session.execute(query)]
+
+
+def daily_spend(
+    session: Session, tenant_id: str, start: date | None = None, end: date | None = None
+) -> list[dict]:
+    """Computed spend per day with usage, oldest first (days without usage are left out)."""
+    query = (
+        select(FctUsage.date_key, func.sum(FctUsage.computed_cost).label("computed_usd"))
+        .where(FctUsage.tenant_id == tenant_id, *_in_period(FctUsage.date_key, start, end))
+        .group_by(FctUsage.date_key)
+        .order_by(FctUsage.date_key)
+    )
+    return [
+        {"date": _date_of(key), "computed_usd": usd or Decimal(0)}
+        for key, usd in session.execute(query)
+    ]
 
 
 def reconciliation(

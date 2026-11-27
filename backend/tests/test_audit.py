@@ -114,3 +114,15 @@ def test_demo_has_no_write_endpoint_and_stays_apart_from_local(session, client):
         body["spend"]["monthly_run_rate_usd"]
     ) - Decimal(body["savings"]["likely_monthly_usd"])
     assert client.get("/api/spend/audit?tenant=local").status_code == 404
+
+
+def test_daily_endpoint_lists_spend_per_day(session, client):
+    _load_demo(session)
+
+    body = client.get(f"/api/spend/daily?tenant={DEMO_TENANT}&from=2026-10-13").json
+
+    days = body["days"]
+    assert [d["date"] for d in days] == [f"2026-10-{n}" for n in range(13, 20)]
+    assert all(isinstance(d["computed_usd"], str) for d in days)
+    report = build_audit(session, DEMO_TENANT, date(2026, 10, 13), DEMO_END)
+    assert sum(Decimal(d["computed_usd"]) for d in days) == report["spend"]["total_usd"]
