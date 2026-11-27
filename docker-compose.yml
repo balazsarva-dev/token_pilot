@@ -1,0 +1,21 @@
+# Local development database only. Port 5433 avoids clashing with a locally installed Postgres.
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: tokenpilot
+      POSTGRES_PASSWORD: tokenpilot
+      POSTGRES_DB: tokenpilot
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tokenpilot -d tokenpilot"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  pgdata:

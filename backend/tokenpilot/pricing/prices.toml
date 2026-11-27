@@ -1,0 +1,154 @@
+# Reviewed model catalog and price list. Loaded with `make seed` (python -m tokenpilot.cli seed-prices).
+#
+# Rules:
+# - Prices are USD per 1M tokens, written as strings so they stay exact Decimals.
+# - Every price version has a source and a valid_from date. A newer version closes the previous
+#   one automatically (SCD2). Usage before the first valid_from stays unpriced — never guessed.
+# - A rate that is not published is omitted: usage of that token type is then unpriced, not free.
+# - aliases: raw names seen in exports (dated snapshots, Console display names).
+#
+# valid_from 2026-09-01: earliest date these prices were verified to apply to (sample data starts
+# 2026-09-20). Extend backwards only with a source for the earlier period.
+
+# ------------------------------------------------------------------ OpenAI
+# Source: https://developers.openai.com/api/docs/pricing (Standard and Batch tiers), fetched 2026-10-20.
+# Batch prices are exactly 50% of standard for these models.
+
+[[model]]
+provider = "openai"
+model_id = "gpt-5.4-mini"
+display_name = "GPT-5.4 mini"
+aliases = ["gpt-5.4-mini-2026-03-17"]
+family = "gpt-5.4"
+size_tier = "small"
+cheaper_alternative = "gpt-5-mini"
+  [[model.price]]
+  valid_from = 2026-09-01
+  input_uncached = "0.75"
+  input_cached = "0.075"
+  output = "4.50"
+  batch_discount = "0.5"
+  source = "developers.openai.com/api/docs/pricing, fetched 2026-10-20"
+
+[[model]]
+provider = "openai"
+model_id = "gpt-5-mini"
+display_name = "GPT-5 mini"
+aliases = ["gpt-5-mini-2025-08-07"]
+family = "gpt-5"
+size_tier = "small"
+  [[model.price]]
+  valid_from = 2026-09-01
+  input_uncached = "0.25"
+  input_cached = "0.025"
+  output = "2.00"
+  batch_discount = "0.5"
+  source = "developers.openai.com/api/docs/pricing, fetched 2026-10-20"
+
+[[model]]
+provider = "openai"
+model_id = "gpt-4o-mini"
+display_name = "GPT-4o mini"
+aliases = ["gpt-4o-mini-2024-07-18"]
+family = "gpt-4o"
+size_tier = "small"
+  [[model.price]]
+  valid_from = 2026-09-01
+  input_uncached = "0.15"
+  input_cached = "0.075"
+  output = "0.60"
+  batch_discount = "0.5"
+  source = "developers.openai.com/api/docs/pricing, fetched 2026-10-20"
+
+[[model]]
+provider = "openai"
+model_id = "gpt-6-astra"
+display_name = "GPT-6 Astra"
+family = "gpt-6"
+size_tier = "large"
+  [[model.price]]
+  # Short-context prices (input up to 272K tokens). Longer requests cost 20 / 2 / 75; daily
+  # exports cannot tell them apart, so reconciliation will show a gap if such requests exist.
+  # Data-residency endpoints (+10%) are not priced. gpt-6-astra-law is a separate model.
+  # Verified against the billed cost on 2026-09-05 (exact match).
+  valid_from = 2026-09-01
+  input_uncached = "10.00"
+  input_cached = "1.00"
+  output = "50.00"
+  batch_discount = "0.5"
+  source = "developers.openai.com/api/docs/pricing, fetched 2026-10-31"
+
+# ------------------------------------------------------------------ Anthropic
+# Source: https://platform.claude.com/docs/en/about-claude/pricing, fetched 2026-10-20.
+# Batch API: 50% off input and output. Fast mode and US-only inference (1.1x) are not priced in v1.
+
+[[model]]
+provider = "anthropic"
+model_id = "claude-opus-5"
+display_name = "Claude Opus 5"
+family = "claude-opus"
+size_tier = "large"
+cheaper_alternative = "claude-sonnet-5-5"
+  [[model.price]]
+  # No long-context premium. Verified against the billed cost on 2026-09-06 (exact match).
+  valid_from = 2026-09-01
+  input_uncached = "5"
+  cache_write_short = "6.25"
+  cache_write_long = "10"
+  input_cached = "0.50"
+  output = "25"
+  batch_discount = "0.5"
+  source = "platform.claude.com/docs/en/about-claude/pricing, fetched 2026-10-31"
+
+[[model]]
+provider = "anthropic"
+model_id = "claude-sonnet-5-5"
+display_name = "Claude Sonnet 5.5"
+family = "claude-sonnet"
+size_tier = "medium"
+cheaper_alternative = "claude-haiku-5-5"
+  [[model.price]]
+  valid_from = 2026-09-01
+  input_uncached = "2"
+  cache_write_short = "2.50"
+  cache_write_long = "4"
+  input_cached = "0.10"
+  output = "10"
+  batch_discount = "0.5"
+  source = "platform.claude.com/docs/en/about-claude/pricing, fetched 2026-10-20"
+
+[[model]]
+provider = "anthropic"
+model_id = "claude-sonnet-5"
+display_name = "Claude Sonnet 5"
+family = "claude-sonnet"
+size_tier = "medium"
+cheaper_alternative = "claude-haiku-5-5"
+  [[model.price]]
+  # Pricing page: the $2/$10 launch price became the standard price (no increase in September).
+  valid_from = 2026-09-01
+  input_uncached = "2"
+  cache_write_short = "2.50"
+  cache_write_long = "4"
+  input_cached = "0.20"
+  output = "10"
+  batch_discount = "0.5"
+  source = "platform.claude.com/docs/en/about-claude/pricing, fetched 2026-10-20"
+
+[[model]]
+provider = "anthropic"
+model_id = "claude-haiku-5-5"
+display_name = "Claude Haiku 5.5"
+family = "claude-haiku"
+size_tier = "small"
+  [[model.price]]
+  # Prices for prompts up to 100k tokens. Requests over 100k cost 5x; daily exports cannot
+  # tell them apart, so reconciliation will show a gap if such requests exist.
+  valid_from = 2026-09-01
+  input_uncached = "0.10"
+  cache_write_short = "0.125"
+  cache_write_long = "0.20"
+  input_cached = "0.01"
+  output = "0.50"
+  batch_discount = "0.5"
+  source = "platform.claude.com/docs/en/about-claude/pricing, fetched 2026-10-20"

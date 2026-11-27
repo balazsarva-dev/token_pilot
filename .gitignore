@@ -1,0 +1,7 @@
+test_ai_costs/
+*.csv
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
