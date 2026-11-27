@@ -49,6 +49,15 @@ make audit TENANT=demo
 ```
 Supported exports: OpenAI *Activity* (completions usage) and *Cost* (grouped by line item), Anthropic Console *Usage* and *Cost*. Details: `docs/export-formats.md`.
 
+## Claude Code panel (optional)
+[tokenpilot-panel](https://github.com/balazsarva-dev/tokenpilot-panel) is a Claude Code plugin that shows this install's numbers in a side panel: 30-day spend and trend, top models and projects, and audit savings. It is a separate repo, and installing it does not download TokenPilot. The panel only reads from this API, so TokenPilot has to be running (`make run`) with your data in the `local` tenant.
+
+At the Claude Code prompt:
+```
+/plugin install tokenpilot --marketplace balazsarva-dev/tokenpilot-panel
+```
+Then type `/tokenpilot` to open the panel. It needs this repo at commit `f78104d` or later (the `/api/spend/daily` endpoint).
+
 ## Layout
 ```
 backend/
